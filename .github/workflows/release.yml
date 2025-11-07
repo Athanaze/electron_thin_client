@@ -1,10 +1,24 @@
 name: Build and Release
 
-# Trigger on version tags (v1.0.0, v1.2.3, etc.)
+# Trigger on version tags (v1.0.0, v1.2.3, etc.), manual trigger, or branch push
 on:
   push:
     tags:
       - 'v*.*.*'
+    branches:
+      - 'claude/**'
+      - 'main'
+      - 'master'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub Release'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
 
 jobs:
   build:
@@ -33,9 +47,8 @@ jobs:
           # GitHub token for uploading release assets
           github_token: ${{ secrets.GITHUB_TOKEN }}
 
-          # If the commit is tagged with a version (e.g., "v1.0.0"),
-          # release the app after building
-          release: ${{ startsWith(github.ref, 'refs/tags/v') }}
+          # Release if: tagged with version OR manually triggered with create_release=true
+          release: ${{ startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true' }}
 
           # macOS code signing (optional - only if you have certificates)
           mac_certs: ${{ secrets.MAC_CERTS }}
