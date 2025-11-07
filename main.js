@@ -3,6 +3,17 @@ const path = require('path');
 
 let mainWindow;
 
+// Performance optimizations for Linux
+// These flags help with startup time, especially in AppImage format
+if (process.platform === 'linux') {
+  app.commandLine.appendSwitch('no-sandbox');
+  app.commandLine.appendSwitch('disable-gpu-sandbox');
+  app.commandLine.appendSwitch('disable-dev-shm-usage');
+}
+
+// Uncomment this if you experience graphics issues on Linux
+// app.disableHardwareAcceleration();
+
 function createWindow() {
   // Hide the menu bar (File, Edit, etc.)
   Menu.setApplicationMenu(null);
@@ -11,6 +22,8 @@ function createWindow() {
     width: 1280,
     height: 800,
     title: 'LEX IDE',
+    backgroundColor: '#ffffff',
+    show: true, // Show immediately for better perceived performance
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
@@ -22,8 +35,6 @@ function createWindow() {
       // Enable features needed for camera/microphone
       enableBlinkFeatures: 'MediaStreamTrack',
     },
-    // Show window once it's ready
-    show: false,
   });
 
   // Set permissions handler for camera, microphone, and file access
@@ -79,11 +90,6 @@ function createWindow() {
   mainWindow.loadURL('http://localhost:5050').catch((err) => {
     console.error('Failed to load URL:', err);
     // Optionally show an error page or retry logic
-  });
-
-  // Show window when ready
-  mainWindow.once('ready-to-show', () => {
-    mainWindow.show();
   });
 
   // Handle window closed
