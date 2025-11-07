@@ -15,7 +15,10 @@
     "electron",
     "thin-client"
   ],
-  "author": "",
+  "author": {
+    "name": "Electron Thin Client",
+    "email": "electron-thin-client@example.com"
+  },
   "license": "MIT",
   "devDependencies": {
     "electron": "^28.0.0",
@@ -44,7 +47,8 @@
         "deb"
       ],
       "category": "Network",
-      "icon": "build/icon.png"
+      "icon": "build/icon.png",
+      "maintainer": "electron-thin-client@example.com"
     },
     "mac": {
       "target": [
