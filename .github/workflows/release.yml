@@ -1,0 +1,69 @@
+name: Build and Release
+
+# Trigger on version tags (v1.0.0, v1.2.3, etc.), manual trigger, or branch push
+on:
+  push:
+    tags:
+      - 'v*.*.*'
+    branches:
+      - 'claude/**'
+      - 'main'
+      - 'master'
+  workflow_dispatch:
+    inputs:
+      create_release:
+        description: 'Create a GitHub Release'
+        required: false
+        default: 'false'
+        type: choice
+        options:
+          - 'true'
+          - 'false'
+
+jobs:
+  build:
+    runs-on: ${{ matrix.os }}
+
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Build and Release Electron App
+        uses: samuelmeuli/action-electron-builder@v1
+        with:
+          # GitHub token for uploading release assets
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+
+          # Release if: tagged with version OR manually triggered with create_release=true
+          release: ${{ startsWith(github.ref, 'refs/tags/v') || github.event.inputs.create_release == 'true' }}
+
+          # macOS code signing (optional - only if you have certificates)
+          mac_certs: ${{ secrets.MAC_CERTS }}
+          mac_certs_password: ${{ secrets.MAC_CERTS_PASSWORD }}
+
+      - name: Upload artifacts
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: build-${{ matrix.os }}
+          path: |
+            dist/*.AppImage
+            dist/*.deb
+            dist/*.dmg
+            dist/*.zip
+            dist/*.exe
+            dist/*.msi
+          retention-days: 5

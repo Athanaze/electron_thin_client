@@ -52,6 +52,56 @@ npm run build:win
 
 **Note**: Building for macOS requires a Mac, as code signing and notarization can only be done on macOS.
 
+## Automated Releases with GitHub Actions
+
+This repository includes a GitHub Actions workflow that automatically builds and releases the application for all platforms when you push a version tag. **This is completely FREE for public repositories!**
+
+### How to Create a Release:
+
+1. Update the version in `package.json`:
+   ```bash
+   npm version patch  # or minor, or major
+   ```
+
+2. Push the tag to GitHub:
+   ```bash
+   git push && git push --tags
+   ```
+
+3. GitHub Actions will automatically:
+   - Build the app for Linux, macOS, and Windows
+   - Create a GitHub Release with all build artifacts
+   - Upload AppImage, .deb, .dmg, .zip, .exe, and portable executables
+
+### What Gets Built:
+
+- **Linux**:
+  - `Thin-Client-x.x.x.AppImage` (no installation required)
+  - `thin-client_x.x.x_amd64.deb` (Debian/Ubuntu package)
+- **macOS**:
+  - `Thin-Client-x.x.x.dmg` (installer)
+  - `Thin-Client-x.x.x-mac.zip` (archive)
+- **Windows**:
+  - `Thin-Client-Setup-x.x.x.exe` (NSIS installer)
+  - `Thin-Client-x.x.x.exe` (portable executable)
+
+### Viewing Releases:
+
+After the workflow completes (usually 5-10 minutes), visit:
+```
+https://github.com/YOUR_USERNAME/electron_thin_client/releases
+```
+
+All build artifacts will be available for download in the release page.
+
+### Optional: macOS Code Signing
+
+For macOS code signing and notarization, you need to add these secrets to your repository:
+- `MAC_CERTS`: Base64-encoded certificate (.p12)
+- `MAC_CERTS_PASSWORD`: Certificate password
+
+Without these, the macOS builds will work but won't be signed.
+
 ## Build Output
 
 After building, the distribution files will be in the `dist/` directory:
