@@ -1,12 +1,16 @@
-const { app, BrowserWindow, session } = require('electron');
+const { app, BrowserWindow, session, Menu } = require('electron');
 const path = require('path');
 
 let mainWindow;
 
 function createWindow() {
+  // Hide the menu bar (File, Edit, etc.)
+  Menu.setApplicationMenu(null);
+
   mainWindow = new BrowserWindow({
     width: 1280,
     height: 800,
+    title: 'LEX IDE',
     webPreferences: {
       preload: path.join(__dirname, 'preload.js'),
       nodeIntegration: false,
